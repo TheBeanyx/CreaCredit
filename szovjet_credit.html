@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Offical Szovjet Credit</title>
+  <link rel="icon" href="data:," />
+  <style>
+    :root{
+      --bg1:#0a0f1a;
+      --bg2:#1c2a48;
+      --card:#222;
+      --accent:#ffcc00;
+      --accent-2:#e6b800;
+    }
+    body{
+      margin:0;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('background/background.szovjet_credit.png');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      color:#fff;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      padding:20px;
+      min-height:100vh;
+      box-sizing:border-box;
+    }
+
+    /* Start képernyő stílusa */
+    #overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.9);
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.5s ease;
+    }
+    #start-btn {
+      padding: 20px 50px;
+      font-size: 2rem;
+      background: var(--accent);
+      color: #000;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      font-weight: 800;
+      box-shadow: 0 0 30px rgba(255, 204, 0, 0.4);
+      transition: transform 0.2s;
+    }
+    #start-btn:hover {
+      transform: scale(1.1);
+      background: var(--accent-2);
+    }
+
+    h1{
+      margin:18px 0;
+      font-size:clamp(1.8rem,5vw,3rem);
+      color:var(--accent);
+      text-shadow:0 0 14px rgba(255,204,0,0.3);
+    }
+    .leaderboard{
+      width:100%;
+      max-width:760px;
+      background:rgba(20,20,20,0.9);
+      border-radius:18px;
+      padding:20px;
+      box-shadow:0 8px 30px rgba(255,204,0,0.1);
+      box-sizing:border-box;
+      border: 1px solid rgba(255,204,0,0.2);
+    }
+    .class-row{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding:12px 14px;
+      border-bottom:1px solid rgba(255,255,255,0.04);
+      font-size:clamp(1rem,2.4vw,1.3rem);
+      gap:8px;
+    }
+    .class-row .left{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .class-row .place{ font-weight:700; min-width:90px; text-align:left; }
+    .class-row .name{ font-weight:600; letter-spacing:0.6px; }
+    .class-row .pts{ font-weight:700; min-width:120px; text-align:right; font-variant-numeric:tabular-nums; }
+
+    .gold{   box-shadow:inset 0 0 18px rgba(255,215,0,0.1),   0 6px 18px rgba(255,215,0,0.08);   border-left:4px solid #ffd700; }
+    .silver{ box-shadow:inset 0 0 18px rgba(192,192,192,0.06), 0 6px 18px rgba(192,192,192,0.03); border-left:4px solid #c0c0c0; }
+    .bronze{ box-shadow:inset 0 0 18px rgba(205,127,50,0.05),  0 6px 18px rgba(205,127,50,0.03);  border-left:4px solid #cd7f32; }
+
+    #login-icon{
+      position:fixed; top:14px; right:14px; font-size:1.9rem;
+      background:transparent; border:none; color:var(--accent);
+      cursor:pointer; z-index:999; width:auto; max-width:none; padding:4px 8px;
+    }
+    #login-area{
+      display:none; position:fixed; top:64px; right:14px;
+      background:var(--card); padding:14px; border-radius:12px;
+      box-shadow:0 8px 26px rgba(0,0,0,0.6); width:320px; max-width:90%; z-index:998;
+    }
+    #login-area input, #points-area input, #points-area select{
+      width:92%; padding:10px; margin:8px 0; border-radius:8px;
+      border:none; text-align:center; font-size:1rem; box-sizing:border-box;
+    }
+    #points-area{ margin:18px auto 12px; display:block; max-width:520px; text-align:center; }
+
+    button{
+      background:var(--accent); border:none; padding:10px 16px; border-radius:10px;
+      color:#000; font-weight:700; cursor:pointer; transition:all .15s ease;
+      width:82%; max-width:260px;
+    }
+    button:hover{ background:var(--accent-2); }
+    #logout-btn{ margin-top:10px; background:#ff4444; color:#fff; }
+    #logout-btn:hover{ background:#cc0000; }
+    #undo-btn{ margin-top:10px; background:#ff9800; color:#000; }
+    #undo-btn:hover{ background:#e65100; color:#fff; }
+    #undo-btn:disabled{ background:#444; color:#777; cursor:not-allowed; }
+
+    .trend{ font-size:1.1rem; font-weight:700; min-width:28px; text-align:center; }
+    .trend.up{   color:#00e676; }
+    .trend.down{ color:#ff1744; }
+    .trend.same{ color:#888;    }
+
+    #history-box{
+      width:100%; max-width:760px; background:rgba(34,34,34,0.85);
+      border-radius:18px; padding:18px 20px;
+      box-shadow:0 8px 30px rgba(255,204,0,0.04);
+      box-sizing:border-box; margin-top:18px;
+    }
+    #history-box h3{ margin:0 0 12px 0; color:var(--accent); font-size:1rem; letter-spacing:0.5px; }
+    .history-entry{
+      display:flex; justify-content:space-between; align-items:center;
+      padding:7px 4px; border-bottom:1px solid rgba(255,255,255,0.04);
+      font-size:0.9rem; gap:8px;
+      opacity:0; animation:fadeIn 0.4s forwards;
+    }
+    @keyframes fadeIn{
+      from{ opacity:0; transform:translateY(-6px); }
+      to{   opacity:1; transform:translateY(0); }
+    }
+
+    #help-btn{
+      position:fixed; bottom:18px; right:18px; width:42px; height:42px;
+      border-radius:50%; background:var(--accent); color:#000; font-size:1.3rem;
+      font-weight:700; border:none; cursor:pointer; z-index:999;
+      display:flex; align-items:center; justify-content:center;
+      box-shadow:0 4px 14px rgba(255,204,0,0.3); max-width:42px; padding:0;
+    }
+    #help-btn:hover{ background:var(--accent-2); }
+    #help-modal{
+      display:none; position:fixed; bottom:72px; right:18px;
+      background:var(--card); border-radius:14px; padding:16px 20px;
+      box-shadow:0 8px 26px rgba(0,0,0,0.6); z-index:998; width:240px; max-width:88vw;
+    }
+
+    #reset-modal{
+      display:none; position:fixed; inset:0;
+      background:rgba(0,0,0,0.75); z-index:1000;
+      align-items:center; justify-content:center;
+    }
+    #reset-modal-box{
+      background:#1a1a2e; border:1px solid rgba(255,255,255,0.1);
+      border-radius:16px; padding:28px 24px; width:320px; max-width:90vw;
+      text-align:center; box-shadow:0 12px 40px rgba(0,0,0,0.8);
+    }
+    #reset-password-input{
+      width:100%; padding:10px; border-radius:8px; border:1px solid rgba(255,255,255,0.15);
+      background:#111; color:#fff; font-size:1rem; text-align:center;
+      box-sizing:border-box; margin-bottom:8px;
+    }
+    #reset-error{ color:#ff6b6b; font-size:0.88rem; min-height:1.2em; margin-bottom:10px; }
+
+    #confetti-canvas{
+      position:fixed; top:0; left:0; width:100%; height:100%;
+      pointer-events:none; z-index:9999;
+    }
+
+    @media (max-width:520px){
+      .class-row{ padding:10px; font-size:1rem; }
+      #login-area{ right:8px; top:60px; width:92%; }
+    }
+  </style>
+</head>
+<body>
+  <div id="overlay">
+    <button id="start-btn" onclick="startExperience()">START☭</button>
+  </div>
+
+  <audio id="bg-music" src="music/music.szovjet_credit.mp3" loop></audio>
+
+  <h1> ☭☭☭ Offical <b>Szovjet Credit ☭☭☭</b> </h1>
+
+  <button id="login-icon" onclick="toggleLogin()" aria-label="Open login">🔑</button>
+
+  <div id="login-area" aria-hidden="true">
+    <h3 style="margin:0 0 8px 0;color:var(--accent)">Login</h3>
+    <input id="username" type="text" placeholder="Username" autocomplete="off" />
+    <input id="password" type="password" placeholder="Password" autocomplete="off" />
+    <div style="display:flex;justify-content:center">
+      <button onclick="login()">Login</button>
+    </div>
+    <p id="login-status" style="margin:6px 0 0 0;font-size:0.95rem"></p>
+  </div>
+
+  <div id="points-area" style="display:none;">
+    <h3 style="margin:6px 0 8px 0">Add or Remove Points</h3>
+    <select id="class-select" aria-label="Choose class">
+      <option value="7A">7A</option>
+      <option value="6B">6B</option>
+      <option value="6A">6A</option>
+      <option value="5A">5A</option>
+      <option value="5B">5B</option>
+      <option value="8A">8A</option>
+    </select><br/>
+    <input id="points-input" type="text" placeholder="Enter Szovjet Points☭" />
+    <div style="display:flex;justify-content:center;flex-direction:column;align-items:center;gap:8px;">
+      <button onclick="updatePoints()">Update Points</button>
+      <button id="undo-btn" onclick="undoLast()" disabled>↩ Undo Last</button>
+      <button id="reset-btn" onclick="resetScores()">🗑 Reset All Scores</button>
+      <button id="logout-btn" onclick="logout()">Logout</button>
+    </div>
+  </div>
+
+  <div class="leaderboard" id="leaderboard" aria-live="polite"></div>
+
+  <div id="history-box" style="display:none;">
+    <h3>📋 Recent Changes</h3>
+    <div id="history-list"></div>
+  </div>
+
+  <div id="reset-modal">
+    <div id="reset-modal-box">
+      <h3> Reset All Scores</h3>
+      <p>This will set every class back to 0 and clear all history. Enter your password to confirm.</p>
+      <input id="reset-password-input" type="password" placeholder="Your password" autocomplete="off" />
+      <div id="reset-error"></div>
+      <div class="reset-modal-btns">
+        <button id="reset-cancel-btn" onclick="closeResetModal()">Cancel</button>
+        <button id="reset-confirm-btn" onclick="confirmReset()">Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <canvas id="confetti-canvas"></canvas>
+  <button id="help-btn" onclick="toggleHelp()" aria-label="Help">☭</button>
+  <div id="help-modal" aria-hidden="true">
+    <h4> What do the symbols mean?</h4>
+    <div class="help-row"><span style="color:#00e676;font-size:1.3rem">▲</span> PLUS <b>Szovjet Point</b></div>
+    <div class="help-row"><span style="color:#ff1744;font-size:1.3rem">▼</span> MINUS <b>Szovjet Point</b></div>
+    <div class="help-row"><span style="color:#888;font-size:1.3rem">—</span> No <b>Szovjet Point</b></div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="firebase-config.js"></script>
+
+  <script>
+    firebase.initializeApp(firebaseConfig);
+    const db   = firebase.database();
+    const auth = firebase.auth();
+
+    const classes      = ["7A","6B","6A","5A","5B","8A"];
+    const EMAIL_DOMAIN  = "@creascola.hu";
+    const HISTORY_LIMIT = 10;
+
+    let scores           = {};
+    let previousPositions = {};
+    let history          = [];
+    let lastSnapshot     = null;
+    let displayedScores  = {};
+
+    // Gombnyomásra induló funkció
+    function startExperience() {
+      const audio = document.getElementById('bg-music');
+      const overlay = document.getElementById('overlay');
+      
+      audio.play().catch(e => console.log("Hiba a lejátszásnál"));
+      
+      overlay.style.opacity = '0';
+      setTimeout(() => {
+        overlay.style.display = 'none';
+      }, 500);
+    }
+
+    function buildPositions(scoresObj){
+      const sorted = Object.entries(scoresObj)
+        .filter(([cls]) => classes.includes(cls))
+        .sort((a,b) => Number(b[1]) - Number(a[1]));
+      const pos = {};
+      sorted.forEach(([cls], i) => pos[cls] = i);
+      return pos;
+    }
+
+    function formatTime(ts){
+      if(!ts) return '';
+      const d = new Date(ts);
+      const pad = n => String(n).padStart(2,'0');
+      return `${pad(d.getHours())}:${pad(d.getMinutes())} · ${pad(d.getDate())}/${pad(d.getMonth()+1)}`;
+    }
+
+    function animateCounter(el, from, to, duration){
+      if(from === to){ el.textContent = to + ' pts'; return; }
+      const start = performance.now();
+      (function step(now){
+        const p    = Math.min((now - start) / duration, 1);
+        const ease = 1 - Math.pow(1 - p, 3);
+        el.textContent = Math.round(from + (to - from) * ease) + ' pts';
+        if(p < 1) requestAnimationFrame(step);
+      })(start);
+    }
+
+    function toggleLogin(){
+      const area = document.getElementById('login-area');
+      area.style.display = (area.style.display === 'none' || area.style.display === '') ? 'block' : 'none';
+    }
+
+    function login(){
+      const username = document.getElementById('username').value.trim().toLowerCase();
+      const pass     = document.getElementById('password').value;
+      const status   = document.getElementById('login-status');
+      if(!username || !pass){ status.textContent = "❌ Please enter details."; return; }
+      auth.signInWithEmailAndPassword(username + EMAIL_DOMAIN, pass)
+        .then(() => {
+          document.getElementById('login-area').style.display = 'none';
+          document.getElementById('username').value = '';
+          document.getElementById('password').value = '';
+        })
+        .catch(() => status.textContent = "❌ Wrong login.");
+    }
+
+    function logout(){ auth.signOut(); }
+
+    auth.onAuthStateChanged(user => {
+      document.getElementById('points-area').style.display = user ? 'block' : 'none';
+    });
+
+    function updatePoints(){
+      if(!auth.currentUser) return;
+      const selected = document.getElementById('class-select').value;
+      const raw      = document.getElementById('points-input').value.trim();
+      const points   = parseInt(raw, 10);
+      if(isNaN(points)) return;
+
+      const undoSnapshot = JSON.parse(JSON.stringify(scores));
+      const prevPositions = buildPositions(scores);
+      const newScores = JSON.parse(JSON.stringify(scores));
+      newScores[selected] = Math.max(0, (Number(newScores[selected]) || 0) + points);
+
+      db.ref().update({
+        scores: newScores,
+        previousPositions: prevPositions,
+        history: [{
+          cls: selected, change: points, 
+          before: Number(scores[selected] || 0), 
+          after: newScores[selected], ts: Date.now()
+        }, ...history].slice(0, HISTORY_LIMIT),
+        undoSnapshot: undoSnapshot
+      });
+      document.getElementById('points-input').value = '';
+    }
+
+    function undoLast(){
+      if(!auth.currentUser || !lastSnapshot) return;
+      db.ref().update({
+        scores: lastSnapshot,
+        previousPositions: buildPositions(lastSnapshot),
+        history: history.slice(1),
+        undoSnapshot: null
+      });
+    }
+
+    function renderLeaderboard(){
+      const lb = document.getElementById('leaderboard');
+      const sorted = Object.entries(scores)
+        .filter(([cls]) => classes.includes(cls))
+        .sort((a,b) => Number(b[1]) - Number(a[1]));
+
+      if(!lb.querySelector('h3')){
+        lb.innerHTML = `<h3 style="margin:0;color:var(--accent)">Leaderboard</h3>`;
+      }
+
+      classes.forEach(cls => {
+        if(!lb.querySelector(`[data-cls="${cls}"]`)){
+          const row = document.createElement('div');
+          row.dataset.cls = cls;
+          row.className = 'class-row';
+          lb.appendChild(row);
+        }
+      });
+
+      const firstRects = {};
+      lb.querySelectorAll('.class-row').forEach(r => firstRects[r.dataset.cls] = r.getBoundingClientRect());
+
+      sorted.forEach(([cls, pts], index) => {
+        const row = lb.querySelector(`[data-cls="${cls}"]`);
+        let badge = (index === 0) ? '🏆 1st' : (index === 1) ? '🥈 2nd' : (index === 2) ? '🥉 3rd' : (index+1)+'.';
+        let rClass = (index === 0) ? 'gold' : (index === 1) ? 'silver' : (index === 2) ? 'bronze' : '';
+        
+        let trend = '—', tClass = 'same';
+        if(previousPositions[cls] !== undefined) {
+          if(index < previousPositions[cls]) { trend = '▲'; tClass = 'up'; }
+          else if(index > previousPositions[cls]) { trend = '▼'; tClass = 'down'; }
+        }
+
+        row.className = 'class-row ' + rClass;
+        row.innerHTML = `
+          <div class="left">
+            <div class="place">${badge}</div>
+            <div class="name">${cls}</div>
+            <div class="trend ${tClass}">${trend}</div>
+          </div>
+          <div class="pts" id="pts-${cls}">${pts} pts</div>
+        `;
+        
+        const ptsSpan = row.querySelector('.pts');
+        const numPts = Number(pts) || 0;
+        if(displayedScores[cls] !== undefined && displayedScores[cls] !== numPts) {
+          animateCounter(ptsSpan, displayedScores[cls], numPts, 800);
+        } else {
+          ptsSpan.textContent = numPts + ' pts';
+        }
+        displayedScores[cls] = numPts;
+        lb.appendChild(row);
+      });
+
+      requestAnimationFrame(() => {
+        lb.querySelectorAll('.class-row').forEach(row => {
+          const first = firstRects[row.dataset.cls];
+          if(!first) return;
+          const dy = first.top - row.getBoundingClientRect().top;
+          if(Math.abs(dy) < 1) return;
+          row.style.transition = 'none';
+          row.style.transform = `translateY(${dy}px)`;
+          setTimeout(() => {
+            row.style.transition = 'transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+            row.style.transform = 'translateY(0)';
+          }, 50);
+        });
+      });
+    }
+
+    function renderHistory(){
+      const list = document.getElementById('history-list');
+      document.getElementById('history-box').style.display = (auth.currentUser && history.length) ? 'block' : 'none';
+      list.innerHTML = history.map(e => `
+        <div class="history-entry">
+          <span class="h-class">${e.cls}</span>
+          <span class="h-change ${e.change >= 0 ? 'pos' : 'neg'}">${e.change > 0 ? '+' : ''}${e.change} pts</span>
+          <span style="color:#aaa">${e.before} → ${e.after} pts</span>
+          <span class="h-time">${formatTime(e.ts)}</span>
+        </div>
+      `).join('');
+    }
+
+    function resetScores(){ document.getElementById('reset-modal').style.display = 'flex'; }
+    function closeResetModal(){ document.getElementById('reset-modal').style.display = 'none'; }
+    function confirmReset(){
+      const pass = document.getElementById('reset-password-input').value;
+      const credential = firebase.auth.EmailAuthProvider.credential(auth.currentUser.email, pass);
+      auth.currentUser.reauthenticateWithCredential(credential).then(() => {
+        closeResetModal();
+        const z = {}; classes.forEach(c => z[c] = 0);
+        db.ref().update({ scores: z, previousPositions: null, history: null, undoSnapshot: null });
+      }).catch(() => document.getElementById('reset-error').textContent = '❌ Wrong password.');
+    }
+
+    db.ref('scores').on('value', snap => { scores = snap.val() || {}; renderLeaderboard(); });
+    db.ref('previousPositions').on('value', snap => { previousPositions = snap.val() || {}; });
+    db.ref('history').on('value', snap => { history = snap.val() || []; renderHistory(); });
+    db.ref('undoSnapshot').on('value', snap => {
+      lastSnapshot = snap.val();
+      document.getElementById('undo-btn').disabled = !lastSnapshot;
+    });
+
+    function toggleHelp(){
+      const m = document.getElementById('help-modal');
+      m.style.display = (m.style.display === 'block') ? 'none' : 'block';
+    }
+  </script>
+</body>
+</html>
